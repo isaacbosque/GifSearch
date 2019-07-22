@@ -12,7 +12,7 @@ class _HomePageState extends State<HomePage> {
   String _search;
   int _offset = 0;
 
-  Future<Map> getGif() async {
+  Future<Map> _getGif() async {
     http.Response response;
     if (_search == null)
       response = await http.get(
@@ -23,16 +23,55 @@ class _HomePageState extends State<HomePage> {
     return jsonDecode(response.body);
   }
 
+  Widget UI() {
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.all(10),
+          child: TextField(
+            decoration: InputDecoration(
+              labelText: "Pesquise seu GIF! <3",
+              labelStyle: TextStyle(
+                  fontSize: 30, fontFamily: "Consolas", color: Colors.white),
+              border: OutlineInputBorder(),
+            ),
+          ),
+        ),
+        FutureBuilder(
+          future: _getGif(),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.none:
+              case ConnectionState.waiting:
+                return Container(
+                  width: 200,
+                  height: 200,
+                  alignment: Alignment.center,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 5.0,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                );
+              case ConnectionState.done:
+              default:
+                return Container();
+            }
+          },
+        )
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurpleAccent,
-        title: Image(
-          image: AssetImage("Assets/logo.png")
-        ),
+        title: Image(image: AssetImage("Assets/logo.png")),
         centerTitle: true,
       ),
+      backgroundColor: Color.fromARGB(255, 69, 26, 188),
+      body: UI(),
     );
   }
 }

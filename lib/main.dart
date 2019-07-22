@@ -5,5 +5,9 @@ void main() {
   runApp(MaterialApp(
     title: "gif search",
     home: HomePage(),
+    theme: ThemeData(
+      hintColor: Colors.white,
+      primaryColor: Colors.white
+    ),
   ));
 }
