@@ -11,7 +11,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String _search;
   int _offset = 0;
-
+  final _searchControl = TextEditingController();
   Future<Map> _getGif() async {
     http.Response response;
     if (_search == null)
@@ -22,6 +22,13 @@ class _HomePageState extends State<HomePage> {
           "https://api.giphy.com/v1/gifs/search?api_key=U4NRiGTO74MYyOiV753ZUg1kCt1MV1rp&q=$_search&limit=20&offset=$_offset&rating=G&lang=en");
 
     return jsonDecode(response.body);
+  }
+
+  void _searchGif(text)
+  {
+    setState(() {
+      _search = text;
+    });
   }
 
   @override
@@ -38,12 +45,15 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: EdgeInsets.all(10),
             child: TextField(
+
+              controller: _searchControl,
               decoration: InputDecoration(
                 labelText: "Pesquise seu GIF! <3",
                 labelStyle: TextStyle(
                     fontSize: 30, fontFamily: "Consolas", color: Colors.white),
                 border: OutlineInputBorder(),
               ),
+              onChanged: _searchGif,
             ),
           ),
           Expanded(
