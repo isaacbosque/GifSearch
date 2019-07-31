@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gif_search/UI/gif_page.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -20,16 +21,19 @@ class _HomePageState extends State<HomePage> {
           "https://api.giphy.com/v1/gifs/trending?api_key=U4NRiGTO74MYyOiV753ZUg1kCt1MV1rp&limit=20&rating=G");
     else
       response = await http.get(
-          "https://api.giphy.com/v1/gifs/search?api_key=U4NRiGTO74MYyOiV753ZUg1kCt1MV1rp&q=$_search&limit=20&offset=$_offset&rating=G&lang=en");
+          "https://api.giphy.com/v1/gifs/search?api_key=U4NRiGTO74MYyOiV753ZUg1kCt1MV1rp&q=$_search&limit=19&offset=$_offset&rating=G&lang=en");
     return jsonDecode(response.body);
   }
 
   void _searchGif(text) {
     setState(() {
-      if (text != "")
+      if (text != "") {
         _search = text;
-      else
+        _offset = 0;
+      } else {
         _search = null;
+        _offset = 0;
+      }
     });
   }
 
@@ -87,20 +91,57 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  int _getCount(List data) {
+    if (_search == null)
+      return data.length;
+    else {
+      return data.length + 1;
+    }
+  }
+
   Widget _createTableGif(BuildContext context, AsyncSnapshot snapshot) {
     return GridView.builder(
         padding: EdgeInsets.all(10.0),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2, crossAxisSpacing: 10.0, mainAxisSpacing: 10.0),
-        itemCount: snapshot.data["data"].length,
+        itemCount: _getCount(snapshot.data["data"]),
         itemBuilder: (context, index) {
-          return GestureDetector(
-            child: Image.network(
-              snapshot.data["data"][index]["images"]["fixed_height"]["url"],
-              height: 20,
-              fit: BoxFit.cover,
-            ),
-          );
+          if (_search == null || index < snapshot.data["data"].length) {
+            return GestureDetector(
+              child: Image.network(
+                snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+                height: 20,
+                fit: BoxFit.cover,
+              ),
+              onTap: () {
+                return Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            gif_page(snapshot.data["data"][index])));
+              },
+            );
+          } else {
+            return Container(
+              child: GestureDetector(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.add, color: Colors.white, size: 70.0),
+                    Text(
+                      "Carregar mais icones",
+                      style: TextStyle(color: Colors.white),
+                    )
+                  ],
+                ),
+                onTap: () {
+                  setState(() {
+                    _offset += 19;
+                  });
+                },
+              ),
+            );
+          }
         });
   }
 }
